@@ -104,13 +104,13 @@ To use these macros within your document, simply import it into LiaScript via:
 Try to select the correct images!
 (Hint: Cars are cool, but planes can fly!)
 
-@selectimages(@uid,https://raw.githubusercontent.com/wenik35/LiaScript_ImageQuiz/main/./images,mustang.jpg|f18.jpg,chevrolet.jpg|ford.jpg)
+@selectimages(@uid,https://raw.githubusercontent.com/wenik35/LiaScript_ImageQuiz/main/./img,mustang.jpg|f18.jpg,chevrolet.jpg|ford.jpg)
 
 ## How to use
 
 The implementation from the last slide looks like this:
 
-`@selectimages(@uid,https://raw.githubusercontent.com/wenik35/LiaScript_ImageQuiz/main/./images,mustang.jpg|f18.jpg,chevrolet.jpg|ford.jpg)`
+`@selectimages(@uid,https://raw.githubusercontent.com/wenik35/LiaScript_ImageQuiz/main/./img,mustang.jpg|f18.jpg,chevrolet.jpg|ford.jpg)`
 
 , where
 
