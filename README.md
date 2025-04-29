@@ -108,9 +108,9 @@ Try to select the correct images!
 
 ## How to use
 
-The implementation from the last slide looks like this: 
+The implementation from the last slide looks like this:
 
-`@selectimages(@uid,/img,mustang.jpg|f18.jpg,chevrolet.jpg|ford.jpg)`
+`@selectimages(@uid,https://raw.githubusercontent.com/wenik35/LiaScript_ImageQuiz/main/./images,mustang.jpg|f18.jpg,chevrolet.jpg|ford.jpg)`
 
 , where
 
