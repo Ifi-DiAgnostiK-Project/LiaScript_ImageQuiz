@@ -19,7 +19,7 @@ narrator: US English Female
 </head>
 
 <div style="width: 100%; padding: 20px; border: 1px solid rgb(var(--color-highlight)); border-radius: 8px;">
-    <div class="choices-container" style="display: flex; flex-direction: column; gap: 10px;" id="quiz-@0">
+    <div class="choices-container" style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;" id="quiz-@0">
     </div>
     <div class="feedback" style="margin-top: 20px; font-size:2em; font-weight: bold; text-align: center;">🤔</div>
 </div>
@@ -30,10 +30,10 @@ void setTimeout(() => {
     (function(){
         const quizId = '@0';
         const container = document.querySelector(`#quiz-${quizId}`);
+        container.innerHTML = "";
 
         const feedback = container.nextElementSibling;
 
-        const pathToImages = '@1';
         const correctAnswers = '@2'.split('|');
         const wrongAnswers = '@3'.split('|');
         const allAnswers = [...correctAnswers, ...wrongAnswers];
@@ -48,8 +48,9 @@ void setTimeout(() => {
 
         allAnswers.forEach(answer => {
             const img = document.createElement('img');
-            img.src = pathToImages + "/" + answer;
-            img.style.width = '40%';
+            img.src = answer;
+            img.style.width = '@1rem';
+            img.style.padding = '5px';
             img.style.height = 'auto';
             img.style.borderRadius = '4px';
             img.style.margin = '0 auto';
@@ -69,6 +70,8 @@ void setTimeout(() => {
                                     .from(container.querySelectorAll('.choice-selected'))
                                     .map(el => el.src.split("/").pop());  
 
+                console.log(choices);
+                console.log(correctAnswers);
                 const isCorrect = choices.length === correctAnswers.length && 
                                 choices.every((answer) => correctAnswers.includes(answer));
                 
@@ -99,22 +102,30 @@ To use these macros within your document, simply import it into LiaScript via:
 
 `import: https://raw.githubusercontent.com/wenik35/LiaScript_ImageQuiz/refs/heads/main/README.md`
 
-## Example
-
-Try to select the correct images!
-(Hint: Cars are cool, but planes can fly!)
-
-@selectimages(@uid,https://raw.githubusercontent.com/wenik35/LiaScript_ImageQuiz/main/./img,mustang.jpg|f18.jpg,chevrolet.jpg|ford.jpg)
 
 ## How to use
 
-The implementation from the last slide looks like this:
+The makro takes four parameters:
 
-`@selectimages(@uid,https://raw.githubusercontent.com/wenik35/LiaScript_ImageQuiz/main/./img,mustang.jpg|f18.jpg,chevrolet.jpg|ford.jpg)`
+`@selectimages(@uid,<size>,<correct>,<wrong>)`
 
 , where
 
 * `@uid` generates an id for the quiz which is important for correct implementation
-* second parameter specifies the path to the images
-* third parameter are the filenames of the correct images, separated by (`|`)
-* fourth parameter are the filenames of the incorrect images.
+* <size> specifies the image size in rem (line height)
+* <correct> are the paths of the correct images, separated by (`|`)
+* <wrong> are the paths of the incorrect images.
+
+## Example
+<!--
+@basepath: https://raw.githubusercontent.com/wenik35/LiaScript_ImageQuiz/main/./img
+mustang: @basepath/mustang.jpg
+@f18: @basepath/f18.jpg
+@chevrolet: @basepath/chevrolet.jpg
+@ford: @basepath/ford.jpg
+-->
+
+Try to select the correct images!
+(Hint: Cars are cool, but planes can fly!)
+
+@selectimages(@uid,20,@mustang|@f18,@chevrolet|@ford)
