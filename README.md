@@ -68,10 +68,8 @@ void setTimeout(() => {
 
                 const choices = Array
                                     .from(container.querySelectorAll('.choice-selected'))
-                                    .map(el => el.src.split("/").pop());  
+                                    .map(el => el.src);  
 
-                console.log(choices);
-                console.log(correctAnswers);
                 const isCorrect = choices.length === correctAnswers.length && 
                                 choices.every((answer) => correctAnswers.includes(answer));
                 
@@ -118,7 +116,7 @@ The makro takes four parameters:
 
 ## Example
 <!--
-@basepath: https://raw.githubusercontent.com/wenik35/LiaScript_ImageQuiz/main/./img
+@basepath: https://raw.githubusercontent.com/wenik35/LiaScript_ImageQuiz/main/img
 mustang: @basepath/mustang.jpg
 @f18: @basepath/f18.jpg
 @chevrolet: @basepath/chevrolet.jpg
