@@ -34,8 +34,9 @@ void setTimeout(() => {
 
         const feedback = container.nextElementSibling;
 
-        const correctAnswers = '@2'.split('|');
-        const wrongAnswers = '@3'.split('|');
+        const correctAnswers = '@2'.split('|').map((url) => encodeURI(url.replace(" ", "")));
+        const wrongAnswers = '@3'.split('|').map((url) => url.replace(" ", ""));
+
         const allAnswers = [...correctAnswers, ...wrongAnswers];
 
         //shuffle array
@@ -118,7 +119,7 @@ The makro takes four parameters:
 <!--
 @basepath: https://raw.githubusercontent.com/wenik35/LiaScript_ImageQuiz/main/img
 mustang: @basepath/mustang.jpg
-@f18: @basepath/f18.jpg
+f18: https://raw.githubusercontent.com/wenik35/LiaScript_ImageQuiz/main/img/f18.jpg
 @chevrolet: @basepath/chevrolet.jpg
 @ford: @basepath/ford.jpg
 -->
