@@ -109,19 +109,63 @@ void setTimeout(() => {
 }, 100);
 </script>
 @end
+
+@selectimagezones
+<div style="width: 100%;" id="quiz-@0">
+    <img src="@1" usemap="#map-@0">
+    <map id="map-@0" name="map-@0"></map>
+</div>
+
+<script>
+void setTimeout(() => {
+    (function(){
+        const quizId = '@0';
+        const quizContainer = document.querySelector(`#quiz-${quizId}`);
+        const map = quizContainer.querySelector(`#map-${quizId}`);
+
+        const areas = '@2'.replace(" ", "").split('|');
+        areas.forEach(zone => {
+            const coords = zone.split(";");
+
+            const area = document.createElement('area');
+            area.coords = coords.join(",");
+            
+            if (coords.length == 3) {
+                area.shape = "circle";
+            } else if (coords.length == 4) {
+                area.shape = "rect";
+            } else {
+                area.shape = "poly";
+            };
+
+            area.onclick = (() => {
+                window.alert("Solution clicked!");
+                area.classList.toggle("clicked");
+            })
+
+            map.appendChild(area);
+        });
+    })();
+}, 100);
+</script>
+@end
+
 -->
 
-# Image quiz
+# Welcome
 
-This is a template for image quizzes, where you can select a number of images just by clicking on them.
+This course contains makros for image quizzes.
 
-* See the Github version of this document [here...](https://github.com/wenik35/LiaScript_ImageQuiz/)
-* See the LiaScript version of this document [here...](https://liascript.github.io/course/?https://raw.githubusercontent.com/wenik35/LiaScript_ImageQuiz/refs/heads/main/README.md)
+* See the Github version of this document [here...](https://github.com/Ifi-DiAgnostiK-Project/LiaScript_ImageQuiz/)
+* See the LiaScript version of this document [here...](https://liascript.github.io/course/?https://raw.githubusercontent.com/Ifi-DiAgnostiK-Project/LiaScript_ImageQuiz/refs/heads/main/README.md)
 
 To use these macros within your document, simply import it into LiaScript via:
 
-`import: https://raw.githubusercontent.com/wenik35/LiaScript_ImageQuiz/refs/heads/main/README.md`
+`import: https://raw.githubusercontent.com/Ifi-DiAgnostiK-Project/LiaScript_ImageQuiz/refs/heads/main/README.md`
 
+# Image selection quiz
+
+This is a quiz where you need to select the correct images by clicking on them.
 
 ## How to use
 
@@ -149,3 +193,34 @@ Try to select the correct images!
 (Hint: Cars are cool, but planes can fly!)
 
 @selectimages(@uid,20,@mustang|@f18,@chevrolet|@ford)
+
+# Image area quiz
+
+This is a quiz where you need to click on the correct areas of one image.
+
+## How to use
+
+The makro takes three parameters:
+
+`@selectimages(@uid,<image>,<zones>)`
+
+, where
+
+* `@uid` generates an id for the quiz which is important for correct implementation
+* <image> specifies the path to the underlying image,
+* <zones> are the clickable zones in the image.
+
+Zones are defined by their pixel coordinates in the image. The coordinates are separated by `;`, multiple zones are separated by `|`.
+There are 3 types of zones, defined by the number of their coordinates:
+* circle: x1;y1;r
+* rectangle: x1;y1;x2;y2
+* polygon: x1;y1;x2;y2;x3;y3;...
+
+## Example
+<!--
+@chevrolet: https://raw.githubusercontent.com/wenik35/LiaScript_ImageQuiz/main/img/chevrolet.jpg
+-->
+
+Try to click the wheels and the front window!
+
+@selectimagezones(@uid,@chevrolet,415;290;30|340;130;460;160|530;190;520;220;500;250;520;260;530;220)
