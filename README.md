@@ -18,10 +18,13 @@ narrator: US English Female
     </style>
 </head>
 
-<div style="width: 100%; padding: 20px; border: 1px solid rgb(var(--color-highlight)); border-radius: 8px;">
-    <div class="choices-container" style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;" id="quiz-@0">
+<div style="width: 100%; padding: 20px; border: 1px solid rgb(var(--color-highlight)); border-radius: 8px;" id="quiz-@0">
+    <div class="choices-container" style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;"></div>
+
+    <div style="margin: 10px; display: flex; flex-direction: row; align-content: center;">
+        <button class="lia-btn  lia-btn--outline lia-quiz__check">Prüfen</button>
+        <span style="font-size: 1.5em" class="feedback"></span>
     </div>
-    <div class="feedback" style="margin-top: 20px; font-size:2em; font-weight: bold; text-align: center;">🤔</div>
 </div>
 
 
@@ -29,10 +32,11 @@ narrator: US English Female
 void setTimeout(() => {
     (function(){
         const quizId = '@0';
-        const container = document.querySelector(`#quiz-${quizId}`);
-        container.innerHTML = "";
+        const quizContainer = document.querySelector(`#quiz-${quizId}`);
+        const choicesContainer = quizContainer.querySelector('.choices-container');
+        const feedback = quizContainer.querySelector('.feedback');
 
-        const feedback = container.nextElementSibling;
+        choicesContainer.innerHTML = "";
 
         const correctAnswers = '@2'.split('|').map((url) => encodeURI(url.replace(" ", "")));
         const wrongAnswers = '@3'.split('|').map((url) => url.replace(" ", ""));
@@ -56,34 +60,51 @@ void setTimeout(() => {
             img.style.borderRadius = '4px';
             img.style.margin = '0 auto';
             img.style.userSelect = 'none';
+            img.style.cursor = "pointer";
 
             img.addEventListener('click', () => {
                 //mark choices
-                if (img.classList.contains('choice-selected')) {
-                    img.style.border = 'none';
-                    img.classList.remove('choice-selected');
-                } else {
-                    img.style.border = '2px solid rgb(var(--color-highlight))';
-                    img.classList.add('choice-selected');
-                }
-
-                const choices = Array
-                                    .from(container.querySelectorAll('.choice-selected'))
-                                    .map(el => el.src);  
-
-                const isCorrect = choices.length === correctAnswers.length && 
-                                choices.every((answer) => correctAnswers.includes(answer));
-                
-                if (isCorrect) {
-                    feedback.textContent = "✅";
-                } else {
-                    feedback.textContent = "❌";
+                if (!quizContainer.classList.contains("disabled")){
+                    if (img.classList.contains('choice-selected')) {
+                        img.style.border = 'none';
+                        img.classList.remove('choice-selected');
+                    } else {
+                        img.style.border = '2px solid rgb(var(--color-highlight))';
+                        img.classList.add('choice-selected');
+                    }
                 }
             });
 
-            container.appendChild(img);
+            choicesContainer.appendChild(img);
         });
+
         
+        const checkingButton = quizContainer.querySelector('.lia-quiz__check');
+        checkingButton.addEventListener("click", function (e) {
+          const choices = Array
+                              .from(choicesContainer.querySelectorAll('.choice-selected'))
+                              .map(el => el.src);  
+
+          const isCorrect = choices.length === correctAnswers.length && 
+                          choices.every((answer) => correctAnswers.includes(answer));
+
+          if (isCorrect) {
+            feedback.textContent = "✅";
+
+            checkingButton.setAttribute("disabled", "");
+
+            quizContainer.style.borderColor = "rgb(var(--lia-grey))";
+            quizContainer.classList.add("disabled");
+
+            choicesContainer.querySelectorAll("*").forEach((element) => element.style.cursor = "default");
+          } else {
+            feedback.textContent = "❌";
+
+            const buttonText = checkingButton.textContent.split(" ");
+            const count = parseInt(buttonText[1] ?? "0") + 1;
+            checkingButton.textContent = "Prüfen " + count.toString();
+          }
+        })        
     })();
 }, 100);
 </script>
