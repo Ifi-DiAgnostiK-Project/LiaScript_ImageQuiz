@@ -114,6 +114,8 @@ void setTimeout(() => {
 <div style="width: 100%;" id="quiz-@0">
     <img src="@1" usemap="#map-@0">
     <map id="map-@0" name="map-@0"></map>
+    <br>
+    <span id="feedback-@0">Noch keine Zonen gefunden.</span>
 </div>
 
 <script>
@@ -122,8 +124,12 @@ void setTimeout(() => {
         const quizId = '@0';
         const quizContainer = document.querySelector(`#quiz-${quizId}`);
         const map = quizContainer.querySelector(`#map-${quizId}`);
+        const feedback = quizContainer.querySelector(`#feedback-${quizId}`);
+
+        let foundZones = 0;
 
         const areas = '@2'.replace(" ", "").split('|');
+
         areas.forEach(zone => {
             const coords = zone.split(";");
 
@@ -139,9 +145,17 @@ void setTimeout(() => {
             };
 
             area.onclick = (() => {
-                window.alert("Solution clicked!");
-                area.classList.toggle("clicked");
-            })
+                if (!(area.classList.contains("clicked"))) {
+                    area.classList.add("clicked");
+                    foundZones++;
+                    feedback.innerHTML = `${foundZones} Zone(n) gefunden`;
+
+                    if (foundZones == areas.length){
+                        feedback.innerHTML = "Alle Zonen gefunden!";
+                        feedback.style.color = "green";
+                    }
+                };
+            });
 
             map.appendChild(area);
         });
