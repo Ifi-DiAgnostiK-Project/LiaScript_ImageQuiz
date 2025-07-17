@@ -112,8 +112,9 @@ void setTimeout(() => {
 
 @selectimagezones
 <div style="width: 100%;" id="quiz-@0">
-    <img src="@1" usemap="#map-@0">
+    <img src="@1" id="img-@0" usemap="#map-@0">
     <map id="map-@0" name="map-@0"></map>
+    <canvas id="canvas-@0" style="position:absolute; left:0; top:0; pointer-events:none;"></canvas>
     <br>
     <span id="feedback-@0">Noch keine Zonen gefunden.</span>
 </div>
@@ -123,8 +124,21 @@ void setTimeout(() => {
     (function(){
         const quizId = '@0';
         const quizContainer = document.querySelector(`#quiz-${quizId}`);
+        const img = quizContainer.querySelector(`#img-${quizId}`);
         const map = quizContainer.querySelector(`#map-${quizId}`);
         const feedback = quizContainer.querySelector(`#feedback-${quizId}`);
+
+        const canvas = quizContainer.querySelector(`#canvas-${quizId}`);
+        canvas.width = img.width;
+        canvas.height = img.height;
+        canvas.style.left = img.offsetLeft + 'px';
+        canvas.style.top = img.offsetTop + 'px';
+        canvas.style.width = img.width + 'px';
+        canvas.style.height = img.height + 'px';
+        const ctx = canvas.getContext('2d');
+        ctx.strokeStyle = 'green';
+        ctx.fillStyle = "rgba(0, 255, 0, 0.5)";
+        ctx.lineWidth = 2;
 
         let foundZones = 0;
 
@@ -150,6 +164,8 @@ void setTimeout(() => {
                     foundZones++;
                     feedback.innerHTML = `${foundZones} Zone(n) gefunden`;
 
+                    drawShape(ctx, area.shape, coords);
+
                     if (foundZones == areas.length){
                         feedback.innerHTML = "Alle Zonen gefunden!";
                         feedback.style.color = "green";
@@ -159,6 +175,33 @@ void setTimeout(() => {
 
             map.appendChild(area);
         });
+
+        
+        function drawShape(ctx, shape, coords) {
+            ctx.beginPath();
+
+            if (shape == 'poly') {
+                ctx.moveTo(coords[0], coords[1]);
+
+                for (let i = 2; i < coords.length; i = i+2) {
+                    ctx.lineTo(coords[i], coords[i+1]);
+                }
+
+                ctx.lineTo(coords[0], coords[1]);
+
+            } else if (shape == 'circle') {
+                let [x, y, r] = coords;
+
+                ctx.arc(x, y, r, 0, 2 * Math.PI);
+            } else if (shape == 'rect') { 
+                let [x1, y1, x2, y2] = coords;
+
+                ctx.rect(x1, y1, x2 - x1, y2 - y1);
+            }
+
+            ctx.fill();
+            ctx.stroke();
+        }
     })();
 }, 100);
 </script>
