@@ -273,6 +273,8 @@ There are 3 types of zones, defined by the number of their coordinates:
 * rectangle: x1;y1;x2;y2
 * polygon: x1;y1;x2;y2;x3;y3;...
 
+[Here's a tool to generate the coordinate strings](https://wenik35.github.io/PathGen/)
+
 ## Example
 <!--
 @chevrolet: https://raw.githubusercontent.com/wenik35/LiaScript_ImageQuiz/main/img/chevrolet.jpg
@@ -280,4 +282,4 @@ There are 3 types of zones, defined by the number of their coordinates:
 
 Try to click the wheels and the front window!
 
-@selectimagezones(@uid,@chevrolet,415;290;30|340;130;460;160|530;190;520;220;500;250;520;260;530;220)
+@selectimagezones(@uid,@chevrolet,421;297;48 | 336;122;467;168 | 498;244;518;221;528;191;536;208;537;233;531;258;506;262)
