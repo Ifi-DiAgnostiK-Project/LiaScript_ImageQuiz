@@ -6,107 +6,138 @@ language: de
 narrator: US English Female
 
 
-@selectimages
-<head>
-    <style>
-        .choice-selected {
-            padding: 10px;
-            border-radius: 4px;
-            border: 1px solid rgb(var(--color-highlight));
-            user-select: none;
-        }
-    </style>
-</head>
+@style
+    .choice-selected {
+        padding: 10px !important;
+        border-radius: 4px !important;
+        border: 2px solid rgb(var(--color-highlight));
+    }
 
+    .choices-container img {
+        padding: 5px;
+        height: auto;
+        border-radius: 4px;
+        margin: 0 auto;
+        user-select: none;
+        cursor: pointer;
+    }
+@end
+
+@selectimages
 <div style="width: 100%; padding: 20px; border: 1px solid rgb(var(--color-highlight)); border-radius: 8px;" id="quiz-@0">
     <div class="choices-container" style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;"></div>
 
     <div style="margin: 10px; display: flex; flex-direction: row; align-content: center;">
         <button class="lia-btn  lia-btn--outline lia-quiz__check">Prüfen</button>
-        <span style="font-size: 1.5em" class="feedback"></span>
+        <br>
+        <span class="feedback"></span>
     </div>
 </div>
 
 
 <script>
-void setTimeout(() => {
-    (function(){
-        const quizId = '@0';
-        const quizContainer = document.querySelector(`#quiz-${quizId}`);
-        const choicesContainer = quizContainer.querySelector('.choices-container');
-        const feedback = quizContainer.querySelector('.feedback');
+    const quizData = {
+        solved: false,
+        tries: 0,
+        currentAnswer: [],
+        order: null
+    }
 
-        choicesContainer.innerHTML = "";
+    function lockQuiz(feedback, checkingButton, quizContainer, choicesContainer){
+        feedback.textContent = "Herzlichen Glückwunsch, das war die richtige Antwort";
+        feedback.style.color = "rgb(var(--lia-success))";
 
-        const correctAnswers = '@2'.split('|').map((url) => encodeURI(url.replace(" ", "")));
-        const wrongAnswers = '@3'.split('|').map((url) => url.replace(" ", ""));
+        checkingButton.setAttribute("disabled", "");
 
-        const allAnswers = [...correctAnswers, ...wrongAnswers];
+        quizContainer.style.borderColor = "rgb(var(--lia-grey))";
+        quizContainer.classList.add("disabled");
 
-        //shuffle array
-        for (var i = allAnswers.length - 1; i > 0; i--) {
-            var j = Math.floor(Math.random() * (i + 1));
-            var temp = allAnswers[i];
-            allAnswers[i] = allAnswers[j];
-            allAnswers[j] = temp;
-        }
+        choicesContainer.querySelectorAll("*").forEach((element) => element.style.cursor = "default");
+    }
 
-        allAnswers.forEach(answer => {
-            const img = document.createElement('img');
-            img.src = answer;
-            img.style.width = '@1rem';
-            img.style.padding = '5px';
-            img.style.height = 'auto';
-            img.style.borderRadius = '4px';
-            img.style.margin = '0 auto';
-            img.style.userSelect = 'none';
-            img.style.cursor = "pointer";
+    void setTimeout(() => {
+        (function(){
+            const quizId = '@0';
+            const quizContainer = document.querySelector(`#quiz-${quizId}`);
+            const choicesContainer = quizContainer.querySelector('.choices-container');
+            const feedback = quizContainer.querySelector('.feedback');
+            const checkingButton = quizContainer.querySelector('.lia-quiz__check');
 
-            img.addEventListener('click', () => {
-                //mark choices
-                if (!quizContainer.classList.contains("disabled")){
-                    if (img.classList.contains('choice-selected')) {
-                        img.style.border = 'none';
-                        img.classList.remove('choice-selected');
-                    } else {
-                        img.style.border = '2px solid rgb(var(--color-highlight))';
-                        img.classList.add('choice-selected');
-                    }
+            const dataKey = `quiz-${quizId}-data`;
+            const savedData = JSON.parse(sessionStorage.getItem(dataKey)) ?? quizData;
+
+            choicesContainer.innerHTML = "";
+
+            const correctAnswers = '@2'.split('|').map((url) => encodeURI(url.replace(" ", "")));
+            const wrongAnswers = '@3'.split('|').map((url) => url.replace(" ", ""));
+            const allAnswers = [...correctAnswers, ...wrongAnswers];
+
+            let currentAnswer = savedData.currentAnswer;
+
+            if (savedData.order === null) {
+                //shuffle array
+                for (var i = allAnswers.length - 1; i > 0; i--) {
+                    var j = Math.floor(Math.random() * (i + 1));
+                    var temp = allAnswers[i];
+                    allAnswers[i] = allAnswers[j];
+                    allAnswers[j] = temp;
                 }
+
+                savedData.order = allAnswers;
+            }
+
+            if (savedData.tries > 0) {
+                checkingButton.textContent = "Prüfen " + savedData.tries.toString();
+                feedback.textContent = "Die richtige Antwort wurde noch nicht gegeben";
+                feedback.style.color = "rgb(var(--lia-red))";
+            }  
+
+            savedData.order.forEach(answer => {
+                const img = document.createElement('img');
+                img.style.width = "@1rem";
+                img.src = answer;
+                if (currentAnswer.includes(answer)) {
+                    img.classList.add('choice-selected');
+                }
+
+                img.addEventListener('click', () => {
+                    //mark choices
+                    if (!quizContainer.classList.contains("disabled")){
+                        img.classList.toggle('choice-selected');
+                    }
+                });
+
+                choicesContainer.appendChild(img);
             });
 
-            choicesContainer.appendChild(img);
-        });
+            if (savedData.solved) {
+                lockQuiz(feedback, checkingButton, quizContainer, choicesContainer);
+            } else {
+                checkingButton.addEventListener("click", function (e) {
+                    const choices = Array
+                                        .from(choicesContainer.querySelectorAll('.choice-selected'))
+                                        .map(el => el.src);  
+                    savedData.currentAnswer = choices;
 
-        
-        const checkingButton = quizContainer.querySelector('.lia-quiz__check');
-        checkingButton.addEventListener("click", function (e) {
-          const choices = Array
-                              .from(choicesContainer.querySelectorAll('.choice-selected'))
-                              .map(el => el.src);  
+                    const isCorrect = choices.length === correctAnswers.length && 
+                                    choices.every((answer) => correctAnswers.includes(answer));
 
-          const isCorrect = choices.length === correctAnswers.length && 
-                          choices.every((answer) => correctAnswers.includes(answer));
+                    savedData.tries++;
+                    checkingButton.textContent = "Prüfen " + savedData.tries.toString();
 
-          if (isCorrect) {
-            feedback.textContent = "✅";
+                    if (isCorrect) {
+                        savedData.solved = true;
+                        lockQuiz(feedback, checkingButton, quizContainer, choicesContainer);
+                    } else {
+                        feedback.textContent = "Die richtige Antwort wurde noch nicht gegeben";
+                        feedback.style.color = "rgb(var(--lia-red))";
+                    }
 
-            checkingButton.setAttribute("disabled", "");
-
-            quizContainer.style.borderColor = "rgb(var(--lia-grey))";
-            quizContainer.classList.add("disabled");
-
-            choicesContainer.querySelectorAll("*").forEach((element) => element.style.cursor = "default");
-          } else {
-            feedback.textContent = "❌";
-
-            const buttonText = checkingButton.textContent.split(" ");
-            const count = parseInt(buttonText[1] ?? "0") + 1;
-            checkingButton.textContent = "Prüfen " + count.toString();
-          }
-        })        
-    })();
-}, 100);
+                    sessionStorage.setItem(dataKey, JSON.stringify(savedData));
+                });    
+            }
+        })();
+    }, 100);
 </script>
 @end
 
