@@ -5,15 +5,6 @@ version:  0.1
 language: de
 narrator: US English Female
 
-
-@style
-.choice-selected {
-    padding: 10px !important;
-    border-radius: 4px !important;
-    border: 2px solid rgb(var(--color-highlight));
-}
-@end
-
 @selectimages
 <div style="width: 100%; padding: 20px; border: 1px solid rgb(var(--color-highlight)); border-radius: 8px;" id="quiz-@0">
     <div class="choices-container" style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;"></div>
@@ -246,6 +237,24 @@ narrator: US English Female
         })();
     }, 100);
 </script>
+@end
+
+
+@style
+.choice-selected {
+    padding: 10px !important;
+    border-radius: 4px !important;
+    border: 2px solid rgb(var(--color-highlight));
+}
+
+.choices-container img {
+    padding: 5px;
+    height: auto;
+    border-radius: 4px;
+    margin: 0 auto;
+    user-select: none;
+    cursor: pointer;
+}
 @end
 
 -->
