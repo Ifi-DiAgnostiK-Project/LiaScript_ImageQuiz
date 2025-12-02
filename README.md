@@ -261,7 +261,7 @@ title: LiaScript Image Quiz Makros
 
 -->
 
-# Welcome
+# LiaScript Image Quiz Makros
 
 This course contains makros for image quizzes.
 
