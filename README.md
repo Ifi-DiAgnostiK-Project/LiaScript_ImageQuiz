@@ -4,6 +4,7 @@ email:    niwer0305@gmx.de
 version:  0.1
 language: de
 narrator: US English Female
+tags: Wissensspeicher
 
 @selectimages
 <div style="width: 100%; padding: 20px; border: 1px solid rgb(var(--color-highlight)); border-radius: 8px;" id="quiz-@0">
