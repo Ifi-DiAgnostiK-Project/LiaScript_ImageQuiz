@@ -6,6 +6,7 @@ language: de
 narrator: US English Female
 tags: Wissensspeicher
 title: LiaScript Image Quiz Makros
+comment: This course provides macros for image-based quizzes in LiaScript — a selection quiz and an image zone click quiz.
 
 @selectimages
 <div style="width: 100%; padding: 20px; border: 1px solid rgb(var(--color-highlight)); border-radius: 8px;" id="quiz-@0">
@@ -20,6 +21,26 @@ title: LiaScript Image Quiz Makros
 
 
 <script>
+    /**
+ * Shared quiz logic functions used across LiaScript Image Quiz macros.
+ * These pure functions are inlined into the macro templates by the build script
+ * and are independently testable via Jest.
+ */
+
+/**
+ * Checks whether the selected answers contain exactly the correct answers
+ * (order-independent).
+ * @param {string[]} currentAnswers - Currently selected answers.
+ * @param {string[]} correctAnswers - Expected correct answers.
+ * @returns {boolean}
+ */
+function isSelectionCorrect(currentAnswers, correctAnswers) {
+  return (
+    currentAnswers.length === correctAnswers.length &&
+    currentAnswers.every((answer) => correctAnswers.includes(answer))
+  );
+}
+
     const quizData = {
         solved: false,
         tries: 0,
@@ -103,8 +124,7 @@ title: LiaScript Image Quiz Makros
                                         .map(el => el.src);  
                     savedData.currentAnswer = choices;
 
-                    const isCorrect = choices.length === correctAnswers.length && 
-                                    choices.every((answer) => correctAnswers.includes(answer));
+                    const isCorrect = isSelectionCorrect(choices, correctAnswers);
 
                     savedData.tries++;
                     checkingButton.textContent = "Prüfen " + savedData.tries.toString();
@@ -123,6 +143,7 @@ title: LiaScript Image Quiz Makros
         })();
     }, 100);
 </script>
+
 @end
 
 @selectimagezones
@@ -143,7 +164,7 @@ title: LiaScript Image Quiz Makros
         switch (shape) {
             case 'poly':
                 ctx.moveTo(coords[0], coords[1]);
-                for (let i = 2; i < coords.length; i = i+2) {
+                for (let i = 2; i < coords.length; i += 2) {
                     ctx.lineTo(coords[i], coords[i+1]);
                 }
                 ctx.lineTo(coords[0], coords[1]);
@@ -239,8 +260,8 @@ title: LiaScript Image Quiz Makros
         })();
     }, 100);
 </script>
-@end
 
+@end
 
 @style
 .choice-selected {
@@ -257,8 +278,8 @@ title: LiaScript Image Quiz Makros
     user-select: none;
     cursor: pointer;
 }
-@end
 
+@end
 -->
 
 # LiaScript Image Quiz Makros
@@ -267,6 +288,7 @@ This course contains makros for image quizzes.
 
 * See the Github version of this document [here...](https://github.com/Ifi-DiAgnostiK-Project/LiaScript_ImageQuiz/)
 * See the LiaScript version of this document [here...](https://liascript.github.io/course/?https://raw.githubusercontent.com/Ifi-DiAgnostiK-Project/LiaScript_ImageQuiz/refs/heads/main/README.md)
+* Developer guide (build, test, extend): [docs/development.md](docs/development.md)
 
 To use these macros within your document, simply import it into LiaScript via:
 
@@ -311,7 +333,7 @@ This is a quiz where you need to click on the correct areas of one image.
 
 The makro takes three parameters:
 
-`@selectimages(@uid,<image>,<zones>)`
+`@selectimagezones(@uid,<image>,<zones>)`
 
 , where
 
