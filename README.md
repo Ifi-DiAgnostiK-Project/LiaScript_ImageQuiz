@@ -14,6 +14,7 @@ comment: This course provides macros for image-based quizzes in LiaScript — a 
 
     <div style="margin: 10px; display: flex; flex-direction: row; align-content: center;">
         <button class="lia-btn  lia-btn--outline lia-quiz__check">Prüfen</button>
+        <span class="hint-counter" style="margin-left: 10px;"></span>
         <br>
         <span class="feedback"></span>
     </div>
@@ -26,6 +27,21 @@ comment: This course provides macros for image-based quizzes in LiaScript — a 
  * These pure functions are inlined into the macro templates by the build script
  * and are independently testable via Jest.
  */
+
+/**
+ * Returns hint counts for the image selection quiz.
+ * - correct: how many items in currentAnswers are in correctAnswers.
+ * - wrong:   how many items in currentAnswers are NOT in correctAnswers.
+ * - total:   how many correct answers are expected in total.
+ * @param {string[]} currentAnswers - Currently selected answers.
+ * @param {string[]} correctAnswers - Expected correct answers.
+ * @returns {{correct: number, wrong: number, total: number}}
+ */
+function getSelectionHints(currentAnswers, correctAnswers) {
+  const correct = currentAnswers.filter(a => correctAnswers.includes(a)).length;
+  const wrong   = currentAnswers.filter(a => !correctAnswers.includes(a)).length;
+  return { correct, wrong, total: correctAnswers.length };
+}
 
 /**
  * Checks whether the selected answers contain exactly the correct answers
@@ -67,6 +83,7 @@ function isSelectionCorrect(currentAnswers, correctAnswers) {
             const choicesContainer = quizContainer.querySelector('.choices-container');
             const feedback = quizContainer.querySelector('.feedback');
             const checkingButton = quizContainer.querySelector('.lia-quiz__check');
+            const hintCounter = quizContainer.querySelector('.hint-counter');
 
             const dataKey = `quiz-${quizId}-data`;
             const savedData = JSON.parse(sessionStorage.getItem(dataKey)) ?? quizData;
@@ -91,11 +108,23 @@ function isSelectionCorrect(currentAnswers, correctAnswers) {
                 savedData.order = allAnswers;
             }
 
+            function updateHintCounter(currentAnswers) {
+                const hints = getSelectionHints(currentAnswers, correctAnswers);
+                const correctLabel = hints.correct + '/' + hints.total + ' Richtige';
+                let html = '<span style="color: rgb(var(--lia-success))">' + correctLabel + '</span>';
+                if (hints.wrong > 0) {
+                    const wrongLabel = hints.wrong + (hints.wrong === 1 ? ' Falscher' : ' Falsche');
+                    html += ', <span style="color: rgb(var(--lia-red))">' + wrongLabel + '</span>';
+                }
+                hintCounter.innerHTML = html;
+            }
+
             if (savedData.tries > 0) {
                 checkingButton.textContent = "Prüfen " + savedData.tries.toString();
+                updateHintCounter(savedData.currentAnswer);
                 feedback.textContent = "Die richtige Antwort wurde noch nicht gegeben";
                 feedback.style.color = "rgb(var(--lia-red))";
-            }  
+            }
 
             savedData.order.forEach(answer => {
                 const img = document.createElement('img');
@@ -116,6 +145,7 @@ function isSelectionCorrect(currentAnswers, correctAnswers) {
             });
 
             if (savedData.solved) {
+                updateHintCounter(savedData.currentAnswer);
                 lockQuiz(feedback, checkingButton, quizContainer, choicesContainer);
             } else {
                 checkingButton.addEventListener("click", function (e) {
@@ -128,6 +158,7 @@ function isSelectionCorrect(currentAnswers, correctAnswers) {
 
                     savedData.tries++;
                     checkingButton.textContent = "Prüfen " + savedData.tries.toString();
+                    updateHintCounter(savedData.currentAnswer);
 
                     if (isCorrect) {
                         savedData.solved = true;

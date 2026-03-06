@@ -3,6 +3,7 @@
 
     <div style="margin: 10px; display: flex; flex-direction: row; align-content: center;">
         <button class="lia-btn  lia-btn--outline lia-quiz__check">Prüfen</button>
+        <span class="hint-counter" style="margin-left: 10px;"></span>
         <br>
         <span class="feedback"></span>
     </div>
@@ -38,6 +39,7 @@
             const choicesContainer = quizContainer.querySelector('.choices-container');
             const feedback = quizContainer.querySelector('.feedback');
             const checkingButton = quizContainer.querySelector('.lia-quiz__check');
+            const hintCounter = quizContainer.querySelector('.hint-counter');
 
             const dataKey = `quiz-${quizId}-data`;
             const savedData = JSON.parse(sessionStorage.getItem(dataKey)) ?? quizData;
@@ -62,11 +64,23 @@
                 savedData.order = allAnswers;
             }
 
+            function updateHintCounter(currentAnswers) {
+                const hints = getSelectionHints(currentAnswers, correctAnswers);
+                const correctLabel = hints.correct + '/' + hints.total + ' Richtige';
+                let html = '<span style="color: rgb(var(--lia-success))">' + correctLabel + '</span>';
+                if (hints.wrong > 0) {
+                    const wrongLabel = hints.wrong + (hints.wrong === 1 ? ' Falscher' : ' Falsche');
+                    html += ', <span style="color: rgb(var(--lia-red))">' + wrongLabel + '</span>';
+                }
+                hintCounter.innerHTML = html;
+            }
+
             if (savedData.tries > 0) {
                 checkingButton.textContent = "Prüfen " + savedData.tries.toString();
+                updateHintCounter(savedData.currentAnswer);
                 feedback.textContent = "Die richtige Antwort wurde noch nicht gegeben";
                 feedback.style.color = "rgb(var(--lia-red))";
-            }  
+            }
 
             savedData.order.forEach(answer => {
                 const img = document.createElement('img');
@@ -87,6 +101,7 @@
             });
 
             if (savedData.solved) {
+                updateHintCounter(savedData.currentAnswer);
                 lockQuiz(feedback, checkingButton, quizContainer, choicesContainer);
             } else {
                 checkingButton.addEventListener("click", function (e) {
@@ -99,6 +114,7 @@
 
                     savedData.tries++;
                     checkingButton.textContent = "Prüfen " + savedData.tries.toString();
+                    updateHintCounter(savedData.currentAnswer);
 
                     if (isCorrect) {
                         savedData.solved = true;
