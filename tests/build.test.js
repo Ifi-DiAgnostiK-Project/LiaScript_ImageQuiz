@@ -49,6 +49,24 @@ describe("build script", () => {
 
   test("README.md inlines the quiz logic function into the selectimages macro", () => {
     expect(readmeContent).toContain("function isSelectionCorrect(");
+    expect(readmeContent).toContain("function getSelectionHints(");
+  });
+
+  test("selectimages macro shows hint counter beside Prüfen button", () => {
+    const startIdx = readmeContent.indexOf("@selectimages\n");
+    const endIdx = readmeContent.indexOf("@end", startIdx);
+    const macro = readmeContent.slice(startIdx, endIdx);
+    // Counter element present in HTML
+    expect(macro).toContain('class="hint-counter"');
+    // Logic function is present
+    expect(macro).toContain("function getSelectionHints(");
+    // updateHintCounter helper is wired up
+    expect(macro).toContain("function updateHintCounter(");
+    expect(macro).toContain("updateHintCounter(");
+    // German wording for correct items
+    expect(macro).toContain("Richtige");
+    // German wording for wrong items
+    expect(macro).toContain("Falscher");
   });
 
   test("README.md contains the body documentation sections", () => {
